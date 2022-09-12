@@ -7,9 +7,4 @@ typedef struct ParserResult {
     char *redirection; // Name of the file that is redirected to
 } ParserResult;
 
-// bool isB
-ParserResult parseAndValidateCmd(char *fullCmd);
-void executeCmd(int argc, char **argv);
-
-char * mallocStr(char *str);
-void printError();
+ParserResult parseAndValidateCmd(char *fullCmd); 
