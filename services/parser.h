@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #include <stdbool.h>
 
 typedef struct ParserResult {
@@ -8,3 +11,5 @@ typedef struct ParserResult {
 } ParserResult;
 
 ParserResult parseAndValidateCmd(char *fullCmd); 
+
+#endif

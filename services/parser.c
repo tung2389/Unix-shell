@@ -41,7 +41,7 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
     }
 
     /*
-    Check if command is redirected to multiple files.
+    Check if command is redirected to multiple files and extract file that is redirected to.
     */
     char *redirFile = strchr(fullCmd, '>');
     if (redirFile != NULL) {
@@ -51,7 +51,7 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
         copyCmd = mallocStr(redirFile);
         copyCmdPtr = copyCmd;
         savePtr = NULL;  
-        result.redirection = mallocStr(copyCmd);
+        result.redirection = strip(mallocStr(copyCmd));
         while (strtok_r(copyCmd, " ", &savePtr)) {
             redirFileCnt += 1;
             copyCmd = NULL; // Set pointer to NULL for strtok_r to work

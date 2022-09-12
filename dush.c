@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
     enum Mode {INTERACTIVE, BATCH};
     enum Mode mode;
     FILE * input = NULL;
-
     if (argc == 1) {
         mode = INTERACTIVE;
         input = stdin;
@@ -91,8 +90,7 @@ int main(int argc, char *argv[]) {
                 }
                 exit(0);
             }
-            printf("full cmd: %s\n", fullCmd);
-            printf("main cmd: %s\n", cmd);
+            logCmdInfo(fullCmd, parserRes); 
             // executeCmd()
         }
     }
