@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
         }
         
         char *fullCmd = NULL;
+        // Number of commands running paralell
         int cntCmd = 0;
         while ((fullCmd = strsep(&line, "&")) != NULL) {
             char **args = NULL;
@@ -83,15 +84,11 @@ int main(int argc, char *argv[]) {
                 continue;
             }
             char *cmd = parserRes.argv[0];
-            if (strcmp(cmd, "exit") == 0) {
-                if (parserRes.argc > 1) {
-                    printError();
-                    continue;
-                }
-                exit(0);
+            if (strcmp(cmd, "exit") != 0) {
+                cntCmd += 1;
             }
             logCmdInfo(fullCmd, parserRes); 
-            // executeCmd()
+            executeCmd(parserRes.argc, parserRes.argv, parserRes.redirection);
         }
     }
 }

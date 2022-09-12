@@ -62,6 +62,7 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
             return result;
         }
     }
+
     /*
     Extract argc
     */
@@ -69,10 +70,10 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
     copyCmdPtr = copyCmd;
     savePtr = NULL;  
     char *arg;
+    
+    // Terminate the string at the position of '>' character so that we can correclty count number of arguments. 
+    removeRedirChar(copyCmd);
     while ((arg = strtok_r(copyCmd, " ", &savePtr))) {
-        if (strcmp(arg, ">") == 0) {
-            break;
-        }
         result.argc += 1;
         copyCmd = NULL; // Set pointer to NULL for strtok_r to work
     }
@@ -85,6 +86,8 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
     copyCmd = mallocStr(fullCmd);
     copyCmdPtr = copyCmd;
     savePtr = NULL;  
+
+    removeRedirChar(copyCmd);
     for (int i = 0; i < result.argc; i++) {
         char *arg = strtok_r(copyCmd, " ", &savePtr);
         int argLen = strlen(arg);
@@ -93,4 +96,19 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
     }
     free(copyCmdPtr);
     return result;
+}
+
+void removeRedirChar(char *str) {
+    /*
+    Edge casess:
+        - str is NULL
+        - str has no '>' character
+    */
+    if (str == NULL) {
+        return;
+    }
+    char *redirPtr = strchr(str, '>');
+    if (redirPtr != NULL) {
+        *(redirPtr) = '\0';
+    }
 }

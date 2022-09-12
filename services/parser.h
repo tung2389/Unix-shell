@@ -11,5 +11,5 @@ typedef struct ParserResult {
 } ParserResult;
 
 ParserResult parseAndValidateCmd(char *fullCmd); 
-
+void removeRedirChar(char *str);
 #endif
