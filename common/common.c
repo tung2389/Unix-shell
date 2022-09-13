@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 char * mallocStr(char *str) {
     /*
@@ -42,4 +43,15 @@ char * strip(char *str) {
     *(end + 1) = '\0';
 
     return begin;
+}
+
+bool isBuiltinCmd(char *str) {
+    char *builtinCmds[] = {"exit", "cd", "path"};
+    int cntBuiltinCmds = 3;
+    for (int i = 0; i < cntBuiltinCmds; i++) {
+        if (strcmp(str, builtinCmds[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
 }

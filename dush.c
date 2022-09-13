@@ -48,6 +48,10 @@ int main(int argc, char *argv[]) {
     if (input == NULL) {
         exit(1);
     }
+    // Initialize paths variable
+    int pathCnt = 1;
+    char **paths = malloc(sizeof(char *) * pathCnt);
+    paths[0] = mallocStr("/bin");
 
     while (!feof(input)) {
         if (mode == INTERACTIVE) {
@@ -84,11 +88,12 @@ int main(int argc, char *argv[]) {
                 continue;
             }
             char *cmd = parserRes.argv[0];
-            if (strcmp(cmd, "exit") != 0) {
+            // Built-in command will not be run parallel 
+            if (!isBuiltinCmd(cmd)) {
                 cntCmd += 1;
             }
             logCmdInfo(fullCmd, parserRes); 
-            executeCmd(parserRes.argc, parserRes.argv, parserRes.redirection);
+            executeCmd(parserRes.argc, parserRes.argv, parserRes.redirection, &pathCnt, &paths);
         }
     }
 }
