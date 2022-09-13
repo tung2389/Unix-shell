@@ -12,7 +12,7 @@
 - ```tests/```: test cases for the shell.
 
 ## Usage
-```
+```bash
 make
 ./dush # Interactive mode
 ./dush commands.txt # Batch mode
