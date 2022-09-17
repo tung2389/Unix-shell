@@ -45,6 +45,7 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
     */
     char *redirFile = strchr(fullCmd, '>');
     if (redirFile != NULL) {
+        //string after 1st '>'
         redirFile += 1;
         int redirFileCnt = 0;
 

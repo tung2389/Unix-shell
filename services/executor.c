@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <dirent.h>
 #include "executor.h"
 #include "logger.h"
 #include "../common/common.h"
@@ -27,13 +29,23 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
     }
     else if (strcmp(cmd, "cd") == 0) {
         // TODO
-
-        // if (argc == 2) {
-        //     printf("\ntest");
-        // }
-        // else {
-        //     printError();
-        // }
+        char curr_dir[PATH_MAX];
+        char *param = mallocStr(argv[1]);
+        if (argc == 2) {
+            //check dir exists
+            strcat(getcwd(curr_dir, PATH_MAX), "/");
+            strncat(curr_dir, param, strlen(param));
+            DIR* dir = opendir(curr_dir);
+            if (dir){
+                chdir(param);
+                closedir(dir);
+            }else{
+                printError();
+            }
+        }
+        else {
+            printError();
+        }
     }
     else if (strcmp(cmd, "path") == 0) {
         /*

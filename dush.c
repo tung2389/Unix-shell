@@ -28,7 +28,9 @@
 #include "services/services.h"
 
 int main(int argc, char *argv[]) {
+    //set up buffer to stdout
     setbuf(stdout, NULL);
+    //2 enum fields
     enum Mode {INTERACTIVE, BATCH};
     enum Mode mode;
     FILE * input = NULL;
@@ -53,6 +55,7 @@ int main(int argc, char *argv[]) {
     char **paths = malloc(sizeof(char *) * pathCnt);
     paths[0] = mallocStr("/bin");
 
+    //feof -> end of file works for all kind of stream
     while (!feof(input)) {
         if (mode == INTERACTIVE) {
             printf("dush> ");
@@ -61,6 +64,7 @@ int main(int argc, char *argv[]) {
         size_t len = 0;
         ssize_t cntRead;
 
+        //user input
         cntRead = getline(&line, &len, input);
         if (cntRead <= 0) {
             exit(0);
@@ -73,6 +77,7 @@ int main(int argc, char *argv[]) {
         char *fullCmd = NULL;
         // Number of commands running paralell
         int cntCmd = 0;
+        //look for a line + delimeter is & meaning parallel commands
         while ((fullCmd = strsep(&line, "&")) != NULL) {
             char **args = NULL;
             /*
@@ -82,6 +87,7 @@ int main(int argc, char *argv[]) {
             - after that, wait for all to complete.
             
             */
+            //validate input
             ParserResult parserRes = parseAndValidateCmd(fullCmd);
             if (!parserRes.isValid) {
                 printError();
