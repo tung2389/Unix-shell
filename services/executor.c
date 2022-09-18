@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <linux/limits.h>
 #include <dirent.h>
 #include <sys/wait.h>
 #include "executor.h"
@@ -84,19 +84,13 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
     }
     // Execute non built-in commands
     else {
-        argv[argc+1] = NULL;
-        printf("%d", argc);
         int pid = fork();
         if (pid<0){
             printf("Fork fail");
         }else if(pid == 0){
-            // if (redirection != NULL){
-            //     FILE* r = redirect(redirection);
-            //     execv(cmd, argv);
-            //     // close(STDOUT_FILENO);
-            //     // open(redirection, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
-            // }
-            printf("%s", cmd);
+            if (redirection != NULL){
+                FILE* r = redirect(redirection);
+            }
             execv(cmd, argv);
             printf("Unknown cmd\n");
             exit(0);
