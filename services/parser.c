@@ -90,7 +90,7 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
 
     removeRedirChar(copyCmd);
     for (int i = 0; i < result.argc; i++) {
-        char *arg = strtok_r(copyCmd, " ", &savePtr);
+        char *arg = strip(strtok_r(copyCmd, " ", &savePtr));
         int argLen = strlen(arg);
         result.argv[i] = mallocStr(arg);
         copyCmd = NULL; // Set pointer to NULL for strtok_r to work
