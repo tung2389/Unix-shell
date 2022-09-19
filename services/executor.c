@@ -7,6 +7,25 @@
 #include "logger.h"
 #include "../common/common.h"
 
+FILE* redirect(char *redirection) {
+    /*
+    Edge cases:
+        - redirection is NULL (no need for redirection)
+    */
+    if (redirection == NULL) {
+        return NULL;
+    }
+    FILE * out = NULL; 
+    out = fopen(redirection, "w");
+    if (out == NULL) {
+        return NULL;
+    }
+    int outFd = fileno(out);
+    dup2(outFd, STDOUT_FILENO);
+    dup2(outFd, STDERR_FILENO);
+    return out;
+}
+
 void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***paths) {
     /*
     Edge cases:
@@ -26,14 +45,15 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
         exit(0);
     }
     else if (strcmp(cmd, "cd") == 0) {
-        // TODO
-
-        // if (argc == 2) {
-        //     printf("\ntest");
-        // }
-        // else {
-        //     printError();
-        // }
+        char *path = argv[1];
+        if (argc == 2) {
+            if (chdir(path) == -1){
+                printError();
+            }
+        }
+        else {
+            printError();
+        }
     }
     else if (strcmp(cmd, "path") == 0) {
         /*
@@ -52,25 +72,32 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
     }
     // Execute non built-in commands
     else {
+        int pid = fork();
+        if (pid < 0){
+            printf("Fork fail");
+        }
+        else if (pid == 0){
+            if (redirection != NULL){
+                FILE* r = redirect(redirection);
+            }
+            for (int i = 0; i < *(pathCnt); i++) {
+                char *path = (*paths)[i];
+                int fullPathLen = strlen(path) + strlen(cmd) + 1;
+                char *fullPath = malloc(fullPathLen + 1);
+                snprintf(fullPath, fullPathLen + 1, "%s/%s", path, cmd);
+                fullPath[fullPathLen] = '\0';
 
+                if (access(fullPath, X_OK) == 0){
+                    execv(fullPath, argv);
+                    // If exec return, that means an error has occured
+                    printError();
+                }
+                else {
+                    printError();
+                }
+            }
+        }
     }
 }
 
-FILE * redirect(char *redirection) {
-    /*
-    Edge cases:
-        - redirection is NULL (no need for redirection)
-    */
-    if (redirection == NULL) {
-        return NULL;
-    }
-    FILE * out = NULL; 
-    out = fopen(redirection, "w");
-    if (out == NULL) {
-        return NULL;
-    }
-    int outFd = fileno(out);
-    dup2(outFd, STDOUT_FILENO);
-    dup2(outFd, STDERR_FILENO);
-    return out;
-}
+

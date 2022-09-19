@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+//return cstring allocated in heap 
 char * mallocStr(char *str) {
     /*
     Edge cases:
