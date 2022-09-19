@@ -10,6 +10,11 @@
 #include "logger.h"
 #include "../common/common.h"
 
+/*
+redirect redinginput from stdout to target file
+input: file to write output to
+output: file that's already written on
+*/
 FILE* redirect(char *redirection) {
     /*
     Edge cases:
@@ -29,6 +34,11 @@ FILE* redirect(char *redirection) {
     return out;
 }
 
+/*
+execute build-in (exit, cmd, path) and non build-in commands
+input: args user input, num of args, redirection file, paths included, num of paths
+output: no return, execute user cmd normally. If error, print error
+*/
 void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***paths) {
     /*
     Edge cases:
@@ -85,18 +95,17 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
             if (redirection != NULL){
                 FILE* r = redirect(redirection);
             }
-            //config path
-            char *path;
             //execute path
             for (int i=0; i<*(pathCnt); i++){
-                char *path = (*paths)[i];
+                //config path
+                char *path = mallocStr((*paths)[i]);
                 strcat(path, "/");
                 strcat(path, cmd);
+                printf("%s\n", (*paths)[i]);
                 if (access(path, X_OK) == 0){
                     execv(path, argv);
                 }
             }
-            
         }
     }
 }

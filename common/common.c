@@ -4,7 +4,11 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-//return cstring allocated in heap 
+/*
+allocate memory for a string to copy the input string
+input: target string to copy
+output: return string allocated in heap 
+*/
 char * mallocStr(char *str) {
     /*
     Edge cases:
@@ -20,7 +24,12 @@ char * mallocStr(char *str) {
     return p;
 }
 
-char * strip(char *str) {
+/*
+strip the string(user input) including leading and trail space.
+input: a string
+output: a stripped string
+*/
+char * strip(char *str) { 
     /*
     Remove leading and trailing whitespace
     Edge cases:
@@ -46,6 +55,11 @@ char * strip(char *str) {
     return begin;
 }
 
+/*
+check a cmd is build-in or non build-in 
+input: cmd
+output: true if build-in false otherwise
+*/
 bool isBuiltinCmd(char *str) {
     char *builtinCmds[] = {"exit", "cd", "path"};
     int cntBuiltinCmds = 3;
