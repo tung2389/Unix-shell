@@ -56,7 +56,8 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
             strcat(getcwd(curr_dir, PATH_MAX), "/");
             strncat(curr_dir, param, strlen(param));
             DIR* dir = opendir(curr_dir);
-            if (dir){
+            //relative or absolute path check
+            if (dir || opendir(param)){
                 chdir(param);
                 closedir(dir);
             }else{
@@ -91,9 +92,19 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
             if (redirection != NULL){
                 FILE* r = redirect(redirection);
             }
-            execv(cmd, argv);
+            //config path
+            char *path = mallocStr(*(paths[0]));
+            strcat(path, "/");
+            strcat(path, cmd);
+            //execute path
+            printf("%s\n", path);
+            if (access(path, X_OK) == 0){
+                execv(path, argv);
+            }
+            execv(path, argv);
             printf("Unknown cmd\n");
             exit(0);
+            
         }else{
             int rc_wait = wait(NULL);
         }
