@@ -31,7 +31,7 @@
 int main(int argc, char *argv[]) {
     //set up buffer to stdout
     setbuf(stdout, NULL);
-    //2 enum fields
+
     enum Mode {INTERACTIVE, BATCH};
     enum Mode mode;
     FILE * input = NULL;
@@ -52,10 +52,9 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     // Initialize paths variable
-    int pathCnt = 2;
+    int pathCnt = 1;
     char **paths = malloc(sizeof(char *) * pathCnt);
-    paths[0] = mallocStr("/b");
-    paths[1] = mallocStr("/bin");
+    paths[0] = mallocStr("/bin");
 
     //feof -> end of file works for all kind of stream
     while (!feof(input)) {
