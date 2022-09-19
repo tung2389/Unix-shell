@@ -52,15 +52,7 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
         char curr_dir[PATH_MAX];
         char *param = mallocStr(argv[1]);
         if (argc == 2) {
-            //check dir exists
-            strcat(getcwd(curr_dir, PATH_MAX), "/");
-            strncat(curr_dir, param, strlen(param));
-            DIR* dir = opendir(curr_dir);
-            //relative or absolute path check
-            if (dir || opendir(param)){
-                chdir(param);
-                closedir(dir);
-            }else{
+            if (chdir(param) == -1){
                 printError();
             }
         }
@@ -88,25 +80,23 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
         int pid = fork();
         if (pid<0){
             printf("Fork fail");
-        }else if(pid == 0){
+        }
+        else if(pid == 0){
             if (redirection != NULL){
                 FILE* r = redirect(redirection);
             }
             //config path
-            char *path = mallocStr(*(paths[0]));
-            strcat(path, "/");
-            strcat(path, cmd);
+            char *path;
             //execute path
-            printf("%s\n", path);
-            if (access(path, X_OK) == 0){
-                execv(path, argv);
+            for (int i=0; i<*(pathCnt); i++){
+                char *path = (*paths)[i];
+                strcat(path, "/");
+                strcat(path, cmd);
+                if (access(path, X_OK) == 0){
+                    execv(path, argv);
+                }
             }
-            execv(path, argv);
-            printf("Unknown cmd\n");
-            exit(0);
             
-        }else{
-            int rc_wait = wait(NULL);
         }
     }
 }

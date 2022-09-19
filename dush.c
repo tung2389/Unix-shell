@@ -24,6 +24,7 @@
 #include <string.h>
 #include <limits.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "common/common.h"
 #include "services/services.h"
 
@@ -51,9 +52,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     // Initialize paths variable
-    int pathCnt = 1;
+    int pathCnt = 2;
     char **paths = malloc(sizeof(char *) * pathCnt);
-    paths[0] = mallocStr("/bin");
+    paths[0] = mallocStr("/b");
+    paths[1] = mallocStr("/bin");
 
     //feof -> end of file works for all kind of stream
     while (!feof(input)) {
@@ -98,8 +100,14 @@ int main(int argc, char *argv[]) {
             if (!isBuiltinCmd(cmd)) {
                 cntCmd += 1;
             }
-            logCmdInfo(fullCmd, parserRes); 
+            //logCmdInfo(fullCmd, parserRes); 
             executeCmd(parserRes.argc, parserRes.argv, parserRes.redirection, &pathCnt, &paths);
+        }
+
+        int cntFinish = 0;
+        while (cntFinish < cntCmd) {
+            wait(NULL);
+            cntFinish += 1;
         }
     }
 }
