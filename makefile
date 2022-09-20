@@ -1,4 +1,22 @@
-main:
-	gcc dush.c common/common.c services/parser.c services/executor.c services/logger.c  -o dush
+all: dush 
+	
+dush: dush.o common.o parser.o executor.o logger.o
+	gcc dush.o common.o parser.o executor.o logger.o -o dush
+
+dush.o: dush.c common/common.h services/services.h
+	gcc -c dush.c	
+
+common.o: common/common.c
+	gcc -c common/common.c
+
+executor.o: services/services.h common/common.h
+	gcc -c services/executor.c
+
+parser.o: services/parser.c services/parser.h common/common.h
+	gcc -c services/parser.c
+
+logger.o: services/logger.c services/parser.h
+	gcc -c services/logger.c
+
 clean:
-	rm dush
+	rm *.o dush
