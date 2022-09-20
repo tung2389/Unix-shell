@@ -10,6 +10,6 @@ typedef struct ParserResult {
     char *redirection; // Name of the file that is redirected to
 } ParserResult;
 
-ParserResult parseAndValidateCmd(char *fullCmd); 
+ParserResult validateAndParse(char *fullCmd); 
 void removeRedirChar(char *str);
 #endif

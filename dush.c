@@ -44,10 +44,12 @@ int main(int argc, char *argv[]) {
         input = fopen(file, "r");
     }
     else {
+        printError();
         exit(1);
     }
 
     if (input == NULL) {
+        printError();
         exit(1);
     }
     // Initialize paths variable
@@ -69,14 +71,17 @@ int main(int argc, char *argv[]) {
         if (cntRead <= 0) {
             exit(0);
         }
+        line = strip(line);
+        if (strlen(line) == 0) {
+            continue;
+        }
         // Remove newline character and terminate the c-string
         if (line[cntRead - 1] == '\n') {
             line[cntRead - 1] = '\0';
         }
-        
         char *fullCmd = NULL;
-        // Number of commands running paralell
-        int cntCmd = 0;
+        // Number of processes running paralell
+        int cntProc = 0;
         //look for a line + delimeter is & meaning parallel commands
         while ((fullCmd = strsep(&line, "&")) != NULL) {
             char **args = NULL;
@@ -88,22 +93,25 @@ int main(int argc, char *argv[]) {
             
             */
             //validate input
-            ParserResult parserRes = parseAndValidateCmd(fullCmd);
+            ParserResult parserRes = validateAndParse(fullCmd);
             if (!parserRes.isValid) {
                 printError();
+                continue;
+            }
+            if (parserRes.argc == 0) {
                 continue;
             }
             char *cmd = parserRes.argv[0];
             // Built-in command will not be run parallel 
             if (!isBuiltinCmd(cmd)) {
-                cntCmd += 1;
+                cntProc += 1;
             }
             //logCmdInfo(fullCmd, parserRes); 
-            executeCmd(parserRes.argc, parserRes.argv, parserRes.redirection, &pathCnt, &paths);
+            executeCmd(parserRes.argc, parserRes.argv, parserRes.redirection, &pathCnt, &paths, &cntProc);
         }
 
         int cntFinish = 0;
-        while (cntFinish < cntCmd) {
+        while (cntFinish < cntProc) {
             wait(NULL);
             cntFinish += 1;
         }

@@ -12,23 +12,24 @@ redirect redinginput from stdout to target file
 input: file to write output to
 output: file that's already written on
 */
-FILE* redirect(char *redirection) {
+void redirect(char *redirection) {
     /*
     Edge cases:
         - redirection is NULL (no need for redirection)
     */
     if (redirection == NULL) {
-        return NULL;
+        return;
     }
     FILE * out = NULL; 
     out = fopen(redirection, "w");
     if (out == NULL) {
-        return NULL;
+        return; 
     }
     int outFd = fileno(out);
+    // Point stduout and stderr to the file description of target file.
     dup2(outFd, STDOUT_FILENO);
     dup2(outFd, STDERR_FILENO);
-    return out;
+    fclose(out);
 }
 
 /*
@@ -36,7 +37,7 @@ execute build-in (exit, cmd, path) and non build-in commands
 input: args user input, num of args, redirection file, paths included, num of paths
 output: no return, execute user cmd normally. If error, print error
 */
-void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***paths) {
+void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***paths, int *cntProc) {
     /*
     Edge cases:
         - argc <= 0
@@ -44,7 +45,7 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
         - validate each command before running 
     */
     if (argc <= 0) {
-        exit(1);
+        return;
     }
     char *cmd = argv[0];
     if (strcmp(cmd, "exit") == 0) {
@@ -84,11 +85,18 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
     else {
         int pid = fork();
         if (pid < 0){
-            printf("Fork fail");
+            printError();
+            // Fork failed, decrement the number of process. 
+            *(cntProc) -= 1;
+            exit(1);
         }
         else if (pid == 0){
+            /*
+            Always call exit if failed to exec, to prevent the child process from messing up with file
+            descriptors of parent process 
+            */
             if (redirection != NULL){
-                FILE* r = redirect(redirection);
+                redirect(redirection);
             }
             //config path
             char *path;
@@ -96,19 +104,19 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
             for (int i = 0; i < *(pathCnt); i++) {
                 char *path = (*paths)[i];
                 int fullPathLen = strlen(path) + strlen(cmd) + 1;
-                char *fullPath = malloc(fullPathLen + 1);
+                char fullPath[fullPathLen + 1];
                 snprintf(fullPath, fullPathLen + 1, "%s/%s", path, cmd);
                 fullPath[fullPathLen] = '\0';
-
                 if (access(fullPath, X_OK) == 0){
                     execv(fullPath, argv);
                     // If exec return, that means an error has occured
                     printError();
-                }
-                else {
-                    printError();
+                    exit(1);
                 }
             }
+            // No path matches, this is an error.
+            printError();
+            exit(1);
         }
     }
 }
