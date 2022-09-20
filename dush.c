@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
             
             */
             //validate input
-            ParserResult parserRes = parseAndValidateCmd(fullCmd);
+            ParserResult parserRes = validateAndParse(fullCmd);
             if (!parserRes.isValid) {
                 printError();
                 continue;

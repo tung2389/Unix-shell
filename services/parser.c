@@ -6,14 +6,14 @@
 #include "../common/common.h"
 #include "parser.h"
 
-ParserResult parseAndValidateCmd(char *fullCmd) {
+ParserResult validateAndParse(char *fullCmd) {
     /*
     Edge cases:
         - Command is null
-        - Command has multiple redirection symbols
-        - Command is redirected to multiple files
-        - Command has a redirection symbol but it's not redirected to anything
         - Command has a redirection symbol without a command.
+        - Command has multiple redirection symbols
+        - Command has a redirection symbol but it's not redirected to anything
+        - Command is redirected to multiple files
     */ 
     ParserResult result;
     result.isValid = true;
@@ -24,11 +24,20 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
         result.isValid = false;
         return result;
     }
+    fullCmd = strip(fullCmd);
+
+    /*
+    Check if command has a redirection symbol without a command.
+    */
+    char *redirSymbolPtr = strchr(fullCmd, '>');
+    if (redirSymbolPtr == fullCmd) {
+        result.isValid = false;
+        return result;
+    }
 
     /*
     Check if command has multiple redirection symbols.
     */
-
     int redirSymbolCnt = 0;
     for (int i = 0; i < strlen(fullCmd); i++) {
         if (fullCmd[i] == '>') {
@@ -40,60 +49,49 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
         return result;
     }
 
+    // Extract redirection file
+    char *redirFile = NULL; 
+    if (redirSymbolPtr != NULL) {
+        //string after 1st '>'
+        redirFile = strip(redirSymbolPtr + 1);
+    }
+    result.redirection = redirFile;
+
+    /*
+    Check if command has redirection symbol but is not redirected to anything
+    */
+    if (redirSymbolPtr != NULL && strlen(redirFile) == 0) {
+        result.isValid = false;
+        return result;
+    }
+
     /*
     Check if command is redirected to multiple files and extract file that is redirected to.
     */
-    char *redirFile = strchr(fullCmd, '>'); 
-    if (redirFile != NULL) {
-        //string after 1st '>'
-        redirFile = strip(redirFile + 1);
-    }
-    int redirFileCnt = 0;
-    char *copyCmd = mallocStr(redirFile);
-    char *copyCmdPtr = copyCmd;
-    char *savePtr = NULL;  
-    
-    if (redirFile != NULL && strlen(redirFile) > 0) {
-        result.redirection = strip(mallocStr(copyCmd));
-        while (strtok_r(copyCmd, " ", &savePtr)) {
-            redirFileCnt += 1;
-            copyCmd = NULL; // Set pointer to NULL for strtok_r to work
-        }
-        free(copyCmdPtr);
-        if (redirFileCnt > 1) {
+    char *charPtr = redirFile;
+    while (charPtr != NULL && *charPtr != '\0') {
+        if (*charPtr == ' ') {
             result.isValid = false;
             return result;
         }
-    }
-    
-    // Check if command has redirection symbol but is not redirected to anything
-    if (redirSymbolCnt > 0 && redirFileCnt <= 0) {
-        result.isValid = false;
-        return result;
+        charPtr++;
     }
 
     /*
     Extract argc
     */
-    copyCmd = mallocStr(fullCmd);
-    copyCmdPtr = copyCmd;
-    savePtr = NULL;  
-    char *arg;
+    char *copyCmd = mallocStr(fullCmd);
+    char *copyCmdPtr = copyCmd;
+    char *savePtr = NULL;  
     
     // Terminate the string at the position of '>' character so that we can correclty count number of arguments. 
     removeRedirChar(copyCmd);
-    while ((arg = strtok_r(copyCmd, " ", &savePtr))) {
+    while ((strtok_r(copyCmd, " ", &savePtr))) {
         result.argc += 1;
         copyCmd = NULL; // Set pointer to NULL for strtok_r to work
     }
     free(copyCmdPtr);
     
-    // Check if redirection with no command
-    if (result.argc == 0 && result.redirection != NULL) {
-        result.isValid = false;
-        return result;
-    }
-
     /*
     Extract argv
     */
