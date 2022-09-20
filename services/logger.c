@@ -16,10 +16,6 @@ void logCmdInfo(char *fullCmd, ParserResult res) {
     if (res.redirection != NULL) {
         printf("redirected to: %s\n", res.redirection);
     }
-    // if (strcmp(res.argv[0],"cd") == 0){
-    //     char dir[100];
-    //     printf("Current Dir: %s\n", getcwd(dir, 100));
-    // }
 }
 
 void printError() {

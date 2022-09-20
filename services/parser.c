@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h> 
@@ -11,6 +12,8 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
         - Command is null
         - Command has multiple redirection symbols
         - Command is redirected to multiple files
+        - Command has a redirection symbol but it's not redirected to anything
+        - Command has a redirection symbol without a command.
     */ 
     ParserResult result;
     result.isValid = true;
@@ -25,16 +28,13 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
     /*
     Check if command has multiple redirection symbols.
     */
-    char *copyCmd = mallocStr(fullCmd);
-    char *copyCmdPtr = copyCmd; // we need to keep the original pointer so that we can free the block later 
-    char *savePtr = NULL;   // internal pointer for strtok_r
 
-    int redirSymbolCnt= -1;
-    while (strtok_r(copyCmd, ">", &savePtr)) {
-        redirSymbolCnt += 1;
-        copyCmd = NULL; // Set pointer to NULL for strtok_r to work
+    int redirSymbolCnt = 0;
+    for (int i = 0; i < strlen(fullCmd); i++) {
+        if (fullCmd[i] == '>') {
+            redirSymbolCnt += 1;
+        }
     }
-    free(copyCmdPtr);
     if (redirSymbolCnt > 1) {
         result.isValid = false;
         return result;
@@ -43,15 +43,17 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
     /*
     Check if command is redirected to multiple files and extract file that is redirected to.
     */
-    char *redirFile = strchr(fullCmd, '>');
+    char *redirFile = strchr(fullCmd, '>'); 
     if (redirFile != NULL) {
         //string after 1st '>'
-        redirFile += 1;
-        int redirFileCnt = 0;
-
-        copyCmd = mallocStr(redirFile);
-        copyCmdPtr = copyCmd;
-        savePtr = NULL;  
+        redirFile = strip(redirFile + 1);
+    }
+    int redirFileCnt = 0;
+    char *copyCmd = mallocStr(redirFile);
+    char *copyCmdPtr = copyCmd;
+    char *savePtr = NULL;  
+    
+    if (redirFile != NULL && strlen(redirFile) > 0) {
         result.redirection = strip(mallocStr(copyCmd));
         while (strtok_r(copyCmd, " ", &savePtr)) {
             redirFileCnt += 1;
@@ -62,6 +64,12 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
             result.isValid = false;
             return result;
         }
+    }
+    
+    // Check if command has redirection symbol but is not redirected to anything
+    if (redirSymbolCnt > 0 && redirFileCnt <= 0) {
+        result.isValid = false;
+        return result;
     }
 
     /*
@@ -79,11 +87,18 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
         copyCmd = NULL; // Set pointer to NULL for strtok_r to work
     }
     free(copyCmdPtr);
+    
+    // Check if redirection with no command
+    if (result.argc == 0 && result.redirection != NULL) {
+        result.isValid = false;
+        return result;
+    }
 
     /*
     Extract argv
     */
-    result.argv = (char **) malloc(sizeof(char *) * result.argc);
+    // +1 for the NULL pointer
+    result.argv = (char **) malloc(sizeof(char *) * result.argc + 1);
     copyCmd = mallocStr(fullCmd);
     copyCmdPtr = copyCmd;
     savePtr = NULL;  
@@ -95,6 +110,7 @@ ParserResult parseAndValidateCmd(char *fullCmd) {
         result.argv[i] = mallocStr(arg);
         copyCmd = NULL; // Set pointer to NULL for strtok_r to work
     }
+    result.argv[result.argc] = NULL;
     free(copyCmdPtr);
     return result;
 }
