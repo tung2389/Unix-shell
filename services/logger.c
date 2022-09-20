@@ -3,6 +3,11 @@
 #include <string.h>
 #include "parser.h"
 
+/*
+log out user cmd information (args of cmd and redirection file if there exists)
+input: user cmd and a Parser obj
+output: related information
+*/
 void logCmdInfo(char *fullCmd, ParserResult res) {
     printf("full cmd: %s\n", fullCmd);
     printf("executable: %s\n", res.argv[0]);
@@ -18,6 +23,9 @@ void logCmdInfo(char *fullCmd, ParserResult res) {
     }
 }
 
+/*
+Error message 
+*/
 void printError() {
     char error_message[30] = "An error has occurred\n";
     write(STDERR_FILENO, error_message, strlen(error_message)); 

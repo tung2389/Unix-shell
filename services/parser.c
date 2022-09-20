@@ -6,6 +6,11 @@
 #include "../common/common.h"
 #include "parser.h"
 
+/*
+validate user cmd (null, multiple redirect, or redirect to multiple files)
+input: user cmd
+output: a Parser object with valid property.
+*/
 ParserResult validateAndParse(char *fullCmd) {
     /*
     Edge cases:
@@ -113,6 +118,11 @@ ParserResult validateAndParse(char *fullCmd) {
     return result;
 }
 
+/*
+remove the '>' char in user cmd
+input: a full cmd from user
+output: user command no longer has '>'
+*/
 void removeRedirChar(char *str) {
     /*
     Edge casess:

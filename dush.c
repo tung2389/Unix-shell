@@ -31,7 +31,6 @@
 int main(int argc, char *argv[]) {
     //set up buffer to stdout
     setbuf(stdout, NULL);
-
     enum Mode {INTERACTIVE, BATCH};
     enum Mode mode;
     FILE * input = NULL;
