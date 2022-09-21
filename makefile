@@ -9,7 +9,7 @@ dush.o: dush.c common/common.h services/services.h
 common.o: common/common.c
 	gcc -c common/common.c
 
-executor.o: services/services.h common/common.h
+executor.o: services/executor.c services/services.h common/common.h
 	gcc -c services/executor.c
 
 parser.o: services/parser.c services/parser.h common/common.h

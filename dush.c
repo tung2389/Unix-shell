@@ -108,6 +108,20 @@ int main(int argc, char *argv[]) {
             }
             //logCmdInfo(fullCmd, parserRes); 
             executeCmd(parserRes.argc, parserRes.argv, parserRes.redirection, &pathCnt, &paths, &cntProc);
+            
+            /*
+            It's safe to free argv and argc here, because:
+                - If it's a built-in command, we don't fork a new process but run cmd as normal, 
+                and if we reach here, then we have already finish running the command.
+                - If it's a non built-in command:
+                    - if fork failed, then there's nothing to worry about freeing those vairables.
+                    - if fork succeed:
+                        - the child process will have a seperate copy of heap memory, so it's safe to free
+                        these variables. We will handle clean up inside child process
+            */
+            if (parserRes.argv != NULL) {
+                freeArrStr(parserRes.argv, parserRes.argc);
+            }
         }
 
         int cntFinish = 0;
@@ -115,5 +129,8 @@ int main(int argc, char *argv[]) {
             wait(NULL);
             cntFinish += 1;
         }
+    }
+    if (paths != NULL) {
+        freeArrStr(paths, pathCnt);
     }
 }

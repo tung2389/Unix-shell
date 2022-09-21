@@ -70,3 +70,22 @@ bool isBuiltinCmd(char *str) {
     }
     return false;
 }
+
+/*
+Free an array of cstring created by malloc
+input: array of cstring and its len
+*/
+void freeArrStr(char **arr, int len) {
+    /*
+    Edge cases:
+        - arr = NULL
+        - len = 0
+    */
+    if (arr == NULL) {
+        return;
+    }
+    for (int i = 0; i < len; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+}

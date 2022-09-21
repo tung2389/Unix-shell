@@ -109,13 +109,17 @@ void executeCmd(int argc, char **argv, char *redirection, int *pathCnt, char ***
                 fullPath[fullPathLen] = '\0';
                 if (access(fullPath, X_OK) == 0){
                     execv(fullPath, argv);
-                    // If exec return, that means an error has occured
-                    printError();
-                    exit(1);
+                    // If exec return, that means an error has occured, break the loop to go to the end.
+                    break;
                 }
             }
-            // No path matches, this is an error.
+            // No path matches or exec return. Either way, this is an error.
             printError();
+            /*
+            If exec succeed, the heap memory are completely wiped out, and we don't need to take
+            care of freeing. Otherwise, free argv.
+            */
+            freeArrStr(argv, argc);
             exit(1);
         }
     }

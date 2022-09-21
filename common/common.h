@@ -5,5 +5,6 @@
 char * mallocStr(char *str);
 char * strip(char *str);
 bool isBuiltinCmd(char *str);
+void freeArrStr(char **arr, int len); 
 
 #endif
