@@ -1,5 +1,5 @@
 # DUSH shell
-- A shell that supports running multiple commands in parallel and redirection.
+- Unix shell that supports running multiple commands in parallel and redirection.
 
 ## Project structure
 - ```dush.c```: entry point to run the shell.
@@ -12,8 +12,13 @@
 - ```tests/```: test cases for the shell.
 
 ## Usage
+- To run the shell:
 ```bash
 make
 ./dush # Interactive mode
 ./dush commands.txt # Batch mode
+```
+- To run test:
+```bash
+./test_dush.sh
 ```

@@ -3,3 +3,4 @@
 dush
 batch.txt
 tests-out/
+*.o
